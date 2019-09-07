@@ -4,7 +4,10 @@ require_once('vendor/autoload.php');
 $app = new \Slim\App();
 
 $app->add(function ($req, $res, $next) {
-	return $next($req, $res)->withHeader('Access-Control-Allow-Origin', '*');
+	return $next($req, $res)
+		->withHeader('Access-Control-Allow-Origin', '*')
+		->withHeader('Access-Control-Allow-Headers', '*')
+		->withHeader('Access-Control-Allow-Methods', '*');
 });
 
 $app->get('/cartoons', function ($req, $res, $args) {
