@@ -14,6 +14,22 @@ $app->get('/cartoons', function ($req, $res, $args) {
 	return $res->withJson(read_cartoons());
 });
 
+$app->get('/cartoons/metadata', function ($req, $res, $args) {
+	$files = read_cartoons();
+	$tags = read_tags();
+	$transcripts = read_transcripts();
+
+	foreach ($files as $value) {
+		$merged[] = [
+			'id' => $value,
+			'tags' => array_key_exists($value, $tags) ? $tags[$value] : [],
+			'transcript' => array_key_exists($value, $transcripts) ? $transcripts[$value] : ''
+		];
+	}
+
+	return $res->withJson($merged);
+});
+
 $app->get('/cartoons/tags', function ($req, $res, $args) {
 	$files = read_cartoons();
 	$tags = read_tags();
@@ -93,6 +109,10 @@ function get_id($text) {
 
 function read_cartoons() {
 	return array_map('get_id', glob('../../archive/**/*.gif'));
+}
+
+function read_transcripts() {
+	return json_decode(file_get_contents('data/transcripts.json'), true);
 }
 
 function read_tags() {
