@@ -1,13 +1,23 @@
 <?php
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Factory\AppFactory;
+
 require_once('vendor/autoload.php');
 
-$app = new \Slim\App();
+$app = AppFactory::create();
 
-$app->add(function ($req, $res, $next) {
-	return $next($req, $res)
+$app->options('/{routes:.+}', function ($req, $res, $args) {
+	return $res;
+});
+
+$app->add(function ($req, $handler) {
+	$res = $handler->handle($req);
+	return $res
 		->withHeader('Access-Control-Allow-Origin', '*')
 		->withHeader('Access-Control-Allow-Headers', '*')
-		->withHeader('Access-Control-Allow-Methods', '*');
+		->withHeader('Access-Control-Allow-Methods', '*')
+		->withHeader('Access-Control-Allow-Credentials', 'true');
 });
 
 $app->get('/cartoons', function ($req, $res, $args) {
