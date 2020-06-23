@@ -16,15 +16,18 @@ $app->get('/cartoons', function ($req, $res, $args) {
 
 $app->get('/cartoons/metadata', function ($req, $res, $args) {
 	$files = read_cartoons();
+	$duplicates = read_duplicates();
 	$tags = read_tags();
 	$transcripts = read_transcripts();
 
-	foreach ($files as $value) {
-		$merged[] = [
-			'id' => $value,
-			'tags' => array_key_exists($value, $tags) ? $tags[$value] : [],
-			'transcript' => array_key_exists($value, $transcripts) ? $transcripts[$value] : ''
-		];
+	foreach ($files as $key) {
+		if (!in_array($key, $duplicates)) {
+			$merged[] = [
+				'id' => $key,
+				'tags' => array_key_exists($key, $tags) ? $tags[$key] : [],
+				'transcript' => array_key_exists($key, $transcripts) ? $transcripts[$key] : ''
+			];
+		}
 	}
 
 	return $res->withJson($merged);
@@ -109,6 +112,10 @@ function get_id($text) {
 
 function read_cartoons() {
 	return array_map('get_id', glob('../../archive/**/*.gif'));
+}
+
+function read_duplicates() {
+	return json_decode(file_get_contents('data/duplicates.json'));
 }
 
 function read_transcripts() {
