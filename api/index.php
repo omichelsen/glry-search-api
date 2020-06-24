@@ -17,6 +17,7 @@ $app->get('/cartoons', function ($req, $res, $args) {
 $app->get('/cartoons/metadata', function ($req, $res, $args) {
 	$files = read_cartoons();
 	$duplicates = read_duplicates();
+	$imageinfo = read_imageinfo();
 	$tags = read_tags();
 	$transcripts = read_transcripts();
 
@@ -24,6 +25,7 @@ $app->get('/cartoons/metadata', function ($req, $res, $args) {
 		if (!in_array($key, $duplicates)) {
 			$merged[] = [
 				'id' => $key,
+				'size' => array_key_exists($key, $imageinfo) ? $imageinfo[$key] : null,
 				'tags' => array_key_exists($key, $tags) ? $tags[$key] : [],
 				'transcript' => array_key_exists($key, $transcripts) ? $transcripts[$key] : ''
 			];
@@ -116,6 +118,10 @@ function read_cartoons() {
 
 function read_duplicates() {
 	return json_decode(file_get_contents('data/duplicates.json'));
+}
+
+function read_imageinfo() {
+	return json_decode(file_get_contents('data/imageinfo.json'), true);
 }
 
 function read_transcripts() {
